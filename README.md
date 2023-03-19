@@ -1,10 +1,10 @@
 # Seagrass Classificaion in the North Frisian Wadden Sea
 
 ## Introduction
-The three R scripts `0-datadownload.R`, `1-classifiaction` and `2-results` perform a complete workflow of seagrass classification in the North Frisian Wadden Sea. Necessary data is provided in the folder `data`.
+The three R scripts `0-datadownload.R`, `1-classifiaction.R` and `2-results.R` perform a complete workflow of seagrass classification in the North Frisian Wadden Sea. Necessary data is provided in the folder `data`.
 
 ## Description of the Scripts
-`0-datadownload.R`: Sentinel-1 imagery in two specifies time frames (summer 2022 and winter 2023) are automatically downloaded for the aoi (provided in the 'data' folder) from the Copernicus Open Access Hub. The images are cropped to a specific water depth relevant for seagrass occurrence. The Ocean Bayometric data was downloaded from GEBCO (https://www.gebco.net/data_and_products/gridded_bathymetry_data/#global) and provided in the 'data' folder.
+`0-datadownload`: Sentinel-1 imagery in two specifies time frames (summer 2022 and winter 2023) are automatically downloaded for the aoi (provided in the 'data' folder) from the Copernicus Open Access Hub. The images are cropped to a specific water depth relevant for seagrass occurrence. The Ocean Bayometric data was downloaded from GEBCO (https://www.gebco.net/data_and_products/gridded_bathymetry_data/#global) and provided in the 'data' folder.
 
 `1-classification`: Two models, Random Forest and SVM, are trained based on seagrass occurrence ground truth data from summer 2021 from the Umweltportal Schleswig-Holstein (https://umweltportal.schleswig-holstein.de/trefferanzeige?docuuid=a14cf8b7-dd8c-4661-9f67-10ee73ae1feb) and the Sentinel-2 summer image. We only choose the summer image because the ground truth data was also mapped in summer. The training data is provided in the 'data' folder, classes are categorised as follows:
 
