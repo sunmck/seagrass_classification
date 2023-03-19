@@ -17,7 +17,7 @@ getwd()
 
 # Write username for the Sentinel Copernicus Open Access Hub
 # Requires registration
-usercop <- "username"
+usercop <- "avinnus"
 
 # Time ranges in which we want to classify seagrass cover
 summer_22 <-  c("2022-08-20", "2022-08-31")
@@ -168,7 +168,7 @@ dir.create("./data/cropped/", showWarnings = FALSE)
 for (i in 1:length(s2_stacks)){
   cropped <- raster::mask(s2_stacks[[i]], depthmask_sf)
   cropped <- raster::crop(cropped, depthmask_sf)
-  # writeRaster(cropped, filename = paste0("./data/cropped/",time_ranges_txt[[i]],".tif", sep = ""), overwrite=T)
+  writeRaster(cropped, filename = paste0("./data/cropped/",time_ranges_txt[[i]],".tif", sep = ""), overwrite=T)
   s2_stacks_cropped <- append(s2_stacks_cropped, cropped)
 }
 
