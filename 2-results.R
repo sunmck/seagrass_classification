@@ -1,8 +1,7 @@
-# Load necessary libraries
+# Load libraries
 library(ggplot2)
 library(terra)
 library(raster)
-# Load libraries
 library(sf)
 
 # Load classifications

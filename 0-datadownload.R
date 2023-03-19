@@ -15,9 +15,9 @@ getwd()
 ##  Global Variables  =
 ##=====================
 
-# TODO: Write username for the Sentinel Copernicus Open Access Hub
+# Write username for the Sentinel Copernicus Open Access Hub
 # Requires registration
-usercop <- "avinnus"
+usercop <- "username"
 
 # Time ranges in which we want to classify seagrass cover
 summer_22 <-  c("2022-08-20", "2022-08-31")
@@ -37,7 +37,7 @@ bands <- c("B04","B03","B02")
 
 # Range of water depth relevant for seagrass detection
 minWaterDepth <- -10
-maxWaterDepth <- 0
+maxWaterDepth <- 5
 
 ##===============
 ##  Functions   =
@@ -135,9 +135,6 @@ safe_dir_df <- data.frame()
 for (i in 1:nrow(all_records)){
   # Directory where Sentinel-2 .SAFE files are located
   safe_dir <- paste(getwd(), "/data/sentinel-2/", all_records[i,]$record_id,".SAFE", sep = "")
-
-  print(i)
-  print(safe_dir)
   stack <- get_bands(safe_dir, bands)
   names(stack) <- bands
 
@@ -154,8 +151,7 @@ first_img <- s2_stacks[[1]]
 viewRGB(first_img[[c(1,2,3)]], r=3, g=2, b=1)
 
 
-# To reduce computational effort, only select water depth relevant for seagrass
-# Seagrass only grows in shallow waters
+# To reduce computational effort, only select water depth relevant for seagrass as it only grows in shallow waters
 # Ocean Bayometric data provided by GEBCO (https://www.gebco.net/data_and_products/gridded_bathymetry_data/#global)
 depth <- raster("./data/GEBCO_09_Mar_2023_f623677441c5/gebco_2022_n55.3_s53.8_w7.8_e9.3.tif")
 depthmask_poly <- rasterToPolygons(depth, fun = function(x){x>minWaterDepth & x<maxWaterDepth})
@@ -166,12 +162,13 @@ depthmask_sf <- st_transform(depthmask_sf,crs = proj4string(s2_stacks[[1]]))
 
 # Crop downloaded Sentinel-2 images to relevant water depth
 s2_stacks_cropped <- list()
+# Create new folder, if not already existing
+dir.create("./data/cropped/", showWarnings = FALSE)
 
 for (i in 1:length(s2_stacks)){
   cropped <- raster::mask(s2_stacks[[i]], depthmask_sf)
   cropped <- raster::crop(cropped, depthmask_sf)
-  writeRaster(cropped, filename = paste0("./data/cropped/",time_ranges_txt[[i]],".tif", sep = ""), datatype = "INT1U", overwrite=T)
-
+  # writeRaster(cropped, filename = paste0("./data/cropped/",time_ranges_txt[[i]],".tif", sep = ""), overwrite=T)
   s2_stacks_cropped <- append(s2_stacks_cropped, cropped)
 }
 
