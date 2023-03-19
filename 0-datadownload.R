@@ -153,7 +153,7 @@ viewRGB(first_img[[c(1,2,3)]], r=3, g=2, b=1)
 
 # To reduce computational effort, only select water depth relevant for seagrass as it only grows in shallow waters
 # Ocean Bayometric data provided by GEBCO (https://www.gebco.net/data_and_products/gridded_bathymetry_data/#global)
-depth <- raster("./data/GEBCO_09_Mar_2023_f623677441c5/gebco_2022_n55.3_s53.8_w7.8_e9.3.tif")
+depth <- raster("./data/waterdepth/gebco_2022_n55.3_s53.8_w7.8_e9.3.tif")
 depthmask_poly <- rasterToPolygons(depth, fun = function(x){x>minWaterDepth & x<maxWaterDepth})
 depthmask_spdf <- SpatialPolygonsDataFrame(depthmask_poly, data = data.frame(ID = 1:length(depthmask_poly)))
 depthmask_spdf <- unionSpatialPolygons(depthmask_spdf, rep(1, length(depthmask_spdf)))
