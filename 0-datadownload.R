@@ -17,7 +17,7 @@ getwd()
 
 # Write username for the Sentinel Copernicus Open Access Hub
 # Requires registration
-usercop <- "avinnus"
+usercop <- "username"
 
 # Time ranges in which we want to classify seagrass cover
 summer_22 <-  c("2022-08-20", "2022-08-31")
@@ -156,11 +156,11 @@ viewRGB(first_img[[c(1,2,3)]], r=3, g=2, b=1)
 depth <- raster("./data/waterdepth/gebco_2022_n55.3_s53.8_w7.8_e9.3.tif")
 depthmask_poly <- rasterToPolygons(depth, fun = function(x){x>minWaterDepth & x<maxWaterDepth})
 depthmask_spdf <- SpatialPolygonsDataFrame(depthmask_poly, data = data.frame(ID = 1:length(depthmask_poly)))
-depthmask_spdf <- unionSpatialPolygons(depthmask_spdf, rep(1, length(depthmask_spdf)))
 # if unionSpatialPolygons gives error "isTRUE(gpclibPermitStatus()) ist nicht TRUE" run first:
 # install.packages("gpclib", type="source")
 # library(gpclib)
 # gpclibPermit()
+depthmask_spdf <- unionSpatialPolygons(depthmask_spdf, rep(1, length(depthmask_spdf)))
 depthmask_sf <- st_as_sf(depthmask_spdf)
 depthmask_sf <- st_transform(depthmask_sf,crs = proj4string(s2_stacks[[1]]))
 

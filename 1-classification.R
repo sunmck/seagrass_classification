@@ -94,9 +94,9 @@ y_test <- as.factor(test_data$resp_var)
 levels(y)[1] <- "seagrass_coarse"
 levels(y)[2] <- "seagrass_dense"
 levels(y)[3] <- "non_seagrass"
-levels(y_test)[1] <- "seagrass_coarse"
-levels(y_test)[2] <- "seagrass_dense"
-levels(y_test)[3] <- "non_seagrass"
+levels(y_test)[1] <- levels(y)[1]
+levels(y_test)[2] <- levels(y)[2]
+levels(y_test)[3] <- levels(y)[3]
 
 # Train the model using random forest
 set.seed(825)
