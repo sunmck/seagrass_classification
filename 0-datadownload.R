@@ -36,8 +36,8 @@ orbitnumber <- 8
 bands <- c("B04","B03","B02")
 
 # Range of water depth relevant for seagrass detection
-minWaterDepth <- -10
-maxWaterDepth <- 5
+minWaterDepth <- -6
+maxWaterDepth <- 2
 
 ##===============
 ##  Functions   =
@@ -157,6 +157,10 @@ depth <- raster("./data/waterdepth/gebco_2022_n55.3_s53.8_w7.8_e9.3.tif")
 depthmask_poly <- rasterToPolygons(depth, fun = function(x){x>minWaterDepth & x<maxWaterDepth})
 depthmask_spdf <- SpatialPolygonsDataFrame(depthmask_poly, data = data.frame(ID = 1:length(depthmask_poly)))
 depthmask_spdf <- unionSpatialPolygons(depthmask_spdf, rep(1, length(depthmask_spdf)))
+# if unionSpatialPolygons gives error "isTRUE(gpclibPermitStatus()) ist nicht TRUE" run first:
+# install.packages("gpclib", type="source")
+# library(gpclib)
+# gpclibPermit()
 depthmask_sf <- st_as_sf(depthmask_spdf)
 depthmask_sf <- st_transform(depthmask_sf,crs = proj4string(s2_stacks[[1]]))
 
@@ -168,7 +172,8 @@ dir.create("./data/cropped/", showWarnings = FALSE)
 for (i in 1:length(s2_stacks)){
   cropped <- raster::mask(s2_stacks[[i]], depthmask_sf)
   cropped <- raster::crop(cropped, depthmask_sf)
-  writeRaster(cropped, filename = paste0("./data/cropped/",time_ranges_txt[[i]],".tif", sep = ""), overwrite=T)
+  # writeRaster(cropped, filename = paste0("./data/cropped/",time_ranges_txt[[i]],".grd
+  # ", sep = ""), overwrite=T)
   s2_stacks_cropped <- append(s2_stacks_cropped, cropped)
 }
 

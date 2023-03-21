@@ -15,16 +15,16 @@ bands <- c("B04","B03","B02")
 ##==========================
 
 # Load Sentinel-2 data if needed
-safe_dir <- read.csv("./data/safe_dir.csv")
-s2_stacks <- list()
+# safe_dir <- read.csv("./data/safe_dir.csv")
+# s2_stacks <- list()
 
-for (i in 1:nrow(safe_dir)){
-  stack <- get_bands(safe_dir[i,], bands)
-  names(stack) <- bands
+# for (i in 1:nrow(safe_dir)){
+#   stack <- get_bands(safe_dir[i,], bands)
+#   names(stack) <- bands
 
   # Save RGB stacks
-  s2_stacks <- append(s2_stacks, stack)
-}
+#   s2_stacks <- append(s2_stacks, stack)
+# }
 
 # Load and reproject groundtruth data and pre-processed training data
 # Data downloaded from Umweltportal Schleswig-Holstein (https://umweltportal.schleswig-holstein.de/trefferanzeige?docuuid=a14cf8b7-dd8c-4661-9f67-10ee73ae1feb)
@@ -71,8 +71,8 @@ s2_feat_labeled <- cbind(resp_var = sf_points_labeled$resp_var, s2_feat)
 
 # Remove duplicates (in case multiple points fall into the same pixel)
 dupl <- duplicated(s2_feat_labeled)
-which(dupl)
-length(which(dupl)) # Number of duplicates in labeled features that we need to remove
+# which(dupl)
+# length(which(dupl)) # Number of duplicates in labeled features that we need to remove
 s2_feat_labeled <- s2_feat_labeled[!dupl,]
 s2_feat_labeled <- na.omit(s2_feat_labeled)
 
@@ -100,26 +100,26 @@ levels(y_test)[3] <- "non_seagrass"
 
 # Train the model using random forest
 set.seed(825)
-model <- train(
+model_rf <- train(
   x = x,
   y = y,
   trControl = trainControl(
     p = 0.75, # percentage of samples used for training, rest for validation
     method  = "cv", # cross validation
     number  = 5, # 5-fold
-    verboseIter = T, # progress update per iteration
-    classProbs = T # probabilities for each example
+    verboseIter = F, # progress update per iteration
+    classProbs = F # probabilities for each example
   ),
   method = "rf" # random forest
 )
 
 # Performance of random forest model
 # Check performance of the model with train_data
-model
-confusionMatrix(model)
+model_rf
+confusionMatrix(model_rf)
 # Final check performance with test_data that was not used when training the model
 confusionMatrix(reference = y_test,
-                data = predict(model, x_test))
+                data = predict(model_rf, x_test))
 
 # Train alternative model using SVM
 set.seed(321)
@@ -130,8 +130,8 @@ model_svm <- train(
     p = 0.75, # percentage of samples used for training, rest for validation
     method  = "cv", # cross validation
     number  = 5, # 5-fold
-    verboseIter = TRUE, # progress update per iteration
-    classProbs = TRUE # probabilities for each example
+    verboseIter = F, # progress update per iteration
+    classProbs = F # probabilities for each example
   ),
   #preProcess = c("center", "scale"), #center/scale if not done by you on the raster (see previous code rescl)
   method = "svmRadial" # SVM
@@ -156,19 +156,20 @@ confusionMatrix(reference = y_test,
 
 # Get cropped images of relevant water depths either from s2_stacks_cropped or load .tif file
 image_summer <- s2_stacks_cropped[[1]]
-# image_summer <- raster("./data/cropped/summer_22.tif" )
+# image_summer <- brick("./data/cropped/summer_22.grd" )
 image_winter <- s2_stacks_cropped[[2]]
-# image_winter <- raster("./data/cropped/winter_23.tif" )
+# image_winter <- brick("./data/cropped/winter_23.grd" )
 plot(image_summer)
 
 # Predict seagrass coverage with rf model for relevant water depths of Sentinel-2 images and save as .tif
-classification_summer <- predict(image_summer, model, type='raw')
+classification_summer <- predict(image_summer, model_rf, type='raw')
 # Create new folder, if not already existing
 dir.create("./data/classification/", showWarnings = FALSE)
-writeRaster(classification_summer, filename = paste0("./data/classification/classification_summer.tif", sep = ""), overwrite=T)
 
-classification_winter <- predict(image_winter, model, type='raw')
-writeRaster(classification_winter, filename = paste0("./data/classification/classification_winter.tif", sep = ""), overwrite=T)
+writeRaster(classification_summer, filename = paste0("./data/classification/classification_summer.grd", sep = ""), overwrite=T)
+
+classification_winter <- predict(image_winter, model_rf, type='raw')
+writeRaster(classification_winter, filename = paste0("./data/classification/classification_winter.grd", sep = ""), overwrite=T)
 
 
 # Plot classifications

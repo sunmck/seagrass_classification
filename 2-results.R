@@ -3,10 +3,11 @@ library(ggplot2)
 library(terra)
 library(raster)
 library(sf)
+library(dplyr)
 
-# Load classifications
-classification_summer <- raster("./classification/classification_summer.tif")
-classification_winter <- raster("./classification/classification_winter.tif")
+# Load classifications if necessary
+classification_summer <- raster("./data/classification/classification_summer.grd")
+classification_winter <- raster("./data/classification/classification_winter.grd")
 
 ##=============
 ##  Results   =
@@ -23,44 +24,51 @@ mapview::mapview(seagrass_gt) +
 ##    Seagrass Area    =
 ##======================
 
+# Extract values from summer and winter classification and save them in a vector
+vcs <- terra::values(classification_summer)
+vcw <- terra::values(classification_winter)
+
+# Count pixels of each class
+area_summer <- table(vcs)
+area_summer_df <- as.data.frame(area_summer)
+area_winter <- table(vcw)
+area_winter_df <- as.data.frame(area_winter)
+
 # Calculate total area of seagrass
-seagrass_area_summer <- as.data.frame(classification_summer) %>%
-  group_by(layer) %>%
-  tally() %>%
-  mutate(area = (n * res(classification_summer)[1] * res(classification_summer)[2])/100000)
+area_summer_df$area_km2 <- ((area_summer_df$Freq*100)/1000000) # resolution of 10x10m
+area_winter_df$area_km2 <- ((area_winter_df$Freq*100)/1000000)
 
-seagrass_area_winter <- as.data.frame(classification_winter) %>%
-  group_by(layer) %>%
-  tally() %>%
-  mutate(area = (n * res(classification_winter)[1] * res(classification_winter)[2])/1000000)
+# Adjust data frame
+area_summer_df$season <- "summer"
+area_winter_df$season <- "winter"
 
-# Add column with season
-seagrass_area_summer$season <- "summer"
-seagrass_area_winter$season <- "winter"
-
+# Rename class column
+names(area_summer_df)[names(area_summer_df) == "vcs"] <- "class_id"
+names(area_winter_df)[names(area_winter_df) == "vcw"] <- "class_id"
 
 # Merge to single data frame
-seagrass_area_df <- data.frame()
-seagrass_area_df <- rbind(seagrass_area_summer, seagrass_area_winter)
-seagrass_area_df <- subset(seagrass_area_df,layer <= 2)
+area_df <- data.frame()
+area_df <- rbind(area_summer_df, area_winter_df)
+
+# Choose only seagrass classes
+area_df$class_id <- as.numeric(as.character(area_df$class_id))
+area_df <- subset(area_df, area_df$class_id <= 2)
+area_df$class_id <- as.factor(area_df$class_id)
 
 # Add column with class name
-seagrass_area_df$class <- ifelse(seagrass_area_df$layer == 1, "20-60%", ifelse(seagrass_area_df$layer == 2, ">60%", "NA"))
-seagrass_area_df$area <- round(seagrass_area_df$area)
+area_df$seagrass_coverage <- ifelse(area_df$class_id == 1, "20-60%", ifelse(area_df$class_id == 2, ">60%", "NA"))
 
 # Plot seagrass area
-ggplot(seagrass_area_df, aes(fill=class, y=area, x=season)) +
+ggplot(area_df, aes(fill=seagrass_coverage, y=area_km2, x=season)) +
   geom_bar(position='stack', stat='identity') +
-  labs(x="area [km2]", title = "Area of Seagrass in the North Frisian Wadden Sea") +
-  scale_fill_manual(values=c("darkgreen","green")) +
-  geom_text(aes(y = area, label = area), vjust = 1.5, colour = "white")
-
+  labs(x=element_blank(), y="area [km2]", title = "Area of Seagrass in the North Frisian Wadden Sea") +
+  scale_fill_manual(values=c("green","darkgreen"))
 
 ##======================
 ##   Change Detection  =
 ##======================
 
-# Create empty raster with same extent, reolution and crs as classifications
+# Create empty raster with same extent, resolution and crs as classifications
 r <- terra::rast(ext(classification_summer), resolution=res(classification_summer))
 crs(r) <- toString(crs(classification_summer))
 
@@ -68,8 +76,8 @@ crs(r) <- toString(crs(classification_summer))
 # Non-Seagrass extent stays the same: 2
 # Seagrass extent changes from summer to winter: 3
 vr <- terra::values(r)
-vcs <- terra::values(classification_summer)
-vcw <- terra::values(classification_winter)
+# vcs <- terra::values(classification_summer)
+# vcw <- terra::values(classification_winter)
 
 for (i in 1:length(vr)) {
   if(is.na(vcs[i]) | is.na(vcw[i])){
@@ -94,7 +102,7 @@ r <- setValues(r,vr)
 
 # Plot change
 cols_cd <- c("white", "darkgreen", "sandybrown","green")
-classnames_cd <- c("NA", "always seagrass", "never seagrass", "change of seagrass extent")
+classnames_cd <- c("NA", "always seagrass", "never seagrass", "change of extent")
 
 plot(r,
      col = cols_cd,
