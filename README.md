@@ -1,6 +1,7 @@
 # Seagrass Classificaion in the North Frisian Wadden Sea
 
 ## Introduction
+Seagrass meadows are a valuable ecosystem on Earth due to their provision of vital ecosystem services and contribution to climate change mitigation and adaption through carbon sequestration and coastal protection. Thus, their monitoring and protection is of inevitable relevance. 
 The three R scripts `0-datadownload.R`, `1-classifiaction.R` and `2-results.R` perform a complete workflow of seagrass classification in the North Frisian Wadden Sea. Necessary data is provided in the folder `data`.
 
 ## Description of the Scripts
