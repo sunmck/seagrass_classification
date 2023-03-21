@@ -20,6 +20,8 @@ This is the summer classification with the groundtruth seagrass distribution as 
 ![classification_summer](figs/Classification_summer22.png)
 
 `2-results`: First, the total area of seagrass classified in the aoi is calculated. Then, a change detection between the two classifications of summer 2022 and winter 2023 is performed. It can be seen that the two classifications differ quite strongly from each other, with more seagrass classified in the winter image. 
+![area](figs/Area.png)
+![change](figs/Change.png)
 
 ## Discussion
 It is important to note that the ground truth data from summer 2021 used as training input to the model does not match the ground truth from summer 2022. However, more recent ground truth data is not available yet and an automatic download of Sentinel-2 imagery from the Copernicus Open Access Hub is only possible for data which was acquired during the last year. Consequently, the trained model and performed classification is inacurate.
