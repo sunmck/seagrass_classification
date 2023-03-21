@@ -17,7 +17,7 @@ The three R scripts `0-datadownload.R`, `1-classifiaction.R` and `2-results.R` p
 Performance of both models are evaluated, overall accuracy is approx. 80% for both models. However, the random forest model classifies more seagrass correctly. Thus, the two downloaded Sentinel-2 images are classified using the trained random forest model.
 
 This is the summer classification with the groundtruth seagrass distribution as a shapefile overlay:
-![classification_summer](https://drive.google.com/file/d/1sGl-SEld4MK3T9HINPew55oAAFjgLT7d/view?usp=share_link)
+![classification_summer](figs/Classification_summer22.png)
 
 `2-results`: First, the total area of seagrass classified in the aoi is calculated. Then, a change detection between the two classifications of summer 2022 and winter 2023 is performed. It can be seen that the two classifications differ quite strongly from each other, with more seagrass classified in the winter image. 
 
